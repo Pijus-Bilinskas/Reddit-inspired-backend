@@ -4,7 +4,7 @@ import GroupModel from "../models/group.js"
 import LikeModel from "../models/like.js"
 import DislikeModel from "../models/dislike.js"
 import UserModel from "../models/user.js"
-
+import ReactionModel from "../models/reaction.js"
 
 export const INSERT_POST = async (req, res) => {
     try{
@@ -99,5 +99,76 @@ export const DISLIKE_POST = async (req, res) => {
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "An error occurred while disliking post" });
+    }
+};
+
+// export const REACT_TO_POST = async (req, res) => {
+//     try {
+//         const user = await UserModel.findOne({ id: req.user.user_id });
+//         const post = await PostModel.findOne({ id: req.params.id });
+
+//         if (!post) {
+//             return res.status(404).json({ message: "Post not found" });
+//         }
+
+//         const existingReaction = await ReactionModel.findOne({user_id, post_id})
+//         if (existingReaction) {
+//             await ReactionModel.deleteOne({_id: existingReaction._id})
+//             return {message: "removed from post"}
+//         } else {
+//             existingReaction.reaction_type = reaction_type;
+//             await existingReaction.save();
+//             return {message: "Reaction updated"}
+//         } else {
+//             const newReaction = new ReactionModel({
+//                 user_id,
+//                 post_id,
+//                 reaction_type
+//             });
+//             await newReaction.save()
+//             return 
+//         }
+      
+//     } catch (err) {
+//         console.error(err);
+//         return res.status(500).json({ message: "An error occurred while reacting to post" });
+//     }
+// };
+
+export const REACT_TO_POST = async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ id: req.user.user_id });
+        const post = await PostModel.findOne({ id: req.params.id });
+
+        if (!post) {
+            return res.status(404).json({ message: "Post not found" });
+        }
+        const { reaction_type } = req.body;
+
+
+        const existingReaction = await ReactionModel.findOne({ user_id: user.id, post_id: post.id });
+
+        if (existingReaction) {
+            if (existingReaction.reaction_type === reaction_type) {
+                await ReactionModel.deleteOne({ _id: existingReaction._id });
+                return res.status(200).json({ message: `${reaction_type} removed from post` });
+            } else {
+                existingReaction.reaction_type = reaction_type;
+                await existingReaction.save();
+                return res.status(200).json({ message: `Reaction updated to ${reaction_type}` });
+            }
+        } else {
+            const newReaction = new ReactionModel({
+                user_id: user.id,
+                post_id: post.id,
+                reaction_type: req.body.reaction_type
+            });
+            await newReaction.save();
+            return res.status(201).json({ message: `${reaction_type} added to post` });
+        }
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "An error occurred while reacting to post" });
     }
 };
