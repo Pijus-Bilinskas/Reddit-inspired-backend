@@ -27,7 +27,11 @@ export const INSERT_POST = async (req, res) => {
 export const GET_ALL_POSTS = async (req, res) => {
     try{
         const group = await GroupModel.findOne({id: req.params.id})
-        const posts = await PostModel.find({group_id: req.params.id})
+        if(!group){
+            return res.status(404).json({message: "Group was not found"})
+        }
+
+        const posts = await PostModel.find({group_id: req.params.id}).populate(`reactions`)
 
         return res.status(200).json({
             group: group,
@@ -48,92 +52,60 @@ export const DELETE_POST = async (req, res) => {
     }
 }
 
-export const LIKE_POST = async (req, res) => {
-    try {
-        const user = await UserModel.findOne({ id: req.user.user_id });
-        const post = await PostModel.findOne({ id: req.params.id });
-        if (!post) {
-            return res.status(404).json({ message: "Post not found" });
-        }
-
-        const existingLike = await LikeModel.findOne({ user_id: user.id, post_id: post.id });
-        if (existingLike) {
-            await LikeModel.deleteOne({ _id: existingLike._id });
-            return res.status(200).json({ message: "Post unliked successfuly" });
-        }
-
-        const like = new LikeModel({
-            user_id: user.id,
-            post_id: post.id,
-        });
-
-        await like.save();
-        return res.status(200).json({ message: "Post liked successfuly" });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: "An error occurred while liking post" });
-    }
-};
-
-export const DISLIKE_POST = async (req, res) => {
-    try {
-        const user = await UserModel.findOne({ id: req.user.user_id});
-        const post = await PostModel.findOne({ id: req.params.id });
-        if (!post) {
-            return res.status(404).json({ message: "Post not found" });
-        }
-
-        const existingDislike = await DislikeModel.findOne({ user_id: user.id, post_id: post.id });
-        if (existingDislike) {
-            await DislikeModel.deleteOne({ _id: existingDislike._id });
-            return res.status(200).json({ message: "Post un-disliked successfuly" });
-        }
-
-        const dislike = new DislikeModel({
-            user_id: user.id,
-            post_id: post.id,
-        });
-
-        await dislike.save();
-        return res.status(200).json({ message: "Post disliked successfuly" });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: "An error occurred while disliking post" });
-    }
-};
-
-// export const REACT_TO_POST = async (req, res) => {
+// export const LIKE_POST = async (req, res) => {
 //     try {
 //         const user = await UserModel.findOne({ id: req.user.user_id });
 //         const post = await PostModel.findOne({ id: req.params.id });
-
 //         if (!post) {
 //             return res.status(404).json({ message: "Post not found" });
 //         }
 
-//         const existingReaction = await ReactionModel.findOne({user_id, post_id})
-//         if (existingReaction) {
-//             await ReactionModel.deleteOne({_id: existingReaction._id})
-//             return {message: "removed from post"}
-//         } else {
-//             existingReaction.reaction_type = reaction_type;
-//             await existingReaction.save();
-//             return {message: "Reaction updated"}
-//         } else {
-//             const newReaction = new ReactionModel({
-//                 user_id,
-//                 post_id,
-//                 reaction_type
-//             });
-//             await newReaction.save()
-//             return 
+//         const existingLike = await LikeModel.findOne({ user_id: user.id, post_id: post.id });
+//         if (existingLike) {
+//             await LikeModel.deleteOne({ _id: existingLike._id });
+//             return res.status(200).json({ message: "Post unliked successfuly" });
 //         }
-      
+
+//         const like = new LikeModel({
+//             user_id: user.id,
+//             post_id: post.id,
+//         });
+
+//         await like.save();
+//         return res.status(200).json({ message: "Post liked successfuly" });
 //     } catch (err) {
 //         console.error(err);
-//         return res.status(500).json({ message: "An error occurred while reacting to post" });
+//         return res.status(500).json({ message: "An error occurred while liking post" });
 //     }
 // };
+
+// export const DISLIKE_POST = async (req, res) => {
+//     try {
+//         const user = await UserModel.findOne({ id: req.user.user_id});
+//         const post = await PostModel.findOne({ id: req.params.id });
+//         if (!post) {
+//             return res.status(404).json({ message: "Post not found" });
+//         }
+
+//         const existingDislike = await DislikeModel.findOne({ user_id: user.id, post_id: post.id });
+//         if (existingDislike) {
+//             await DislikeModel.deleteOne({ _id: existingDislike._id });
+//             return res.status(200).json({ message: "Post un-disliked successfuly" });
+//         }
+
+//         const dislike = new DislikeModel({
+//             user_id: user.id,
+//             post_id: post.id,
+//         });
+
+//         await dislike.save();
+//         return res.status(200).json({ message: "Post disliked successfuly" });
+//     } catch (err) {
+//         console.error(err);
+//         return res.status(500).json({ message: "An error occurred while disliking post" });
+//     }
+// };
+
 
 export const REACT_TO_POST = async (req, res) => {
     try {

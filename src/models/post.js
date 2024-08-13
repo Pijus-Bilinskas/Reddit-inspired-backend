@@ -7,6 +7,18 @@ const postSchema = mongoose.Schema({
     title: {type: String, required: true},
     content: {type: String, required: true},
     created_at: {type: String, required: true},
-})
+},{
+    toJSON: {virtuals: true},
+    toObject: {virtuals: true}
+});
+
+postSchema.virtual(`reactions`, {
+    ref: `Reaction`,
+    localField: `id`,
+    foreignField: `post_id`
+});
+
+
+
 
 export default mongoose.model("Post", postSchema)

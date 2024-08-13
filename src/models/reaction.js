@@ -10,8 +10,8 @@ const reactionSchema = mongoose.Schema({
 reactionSchema.index(
     { user_id: 1, post_id: 1, answer_id: 1 },
     {
-        unique: true,
-        partialFilterExpression: {
+    unique: true,
+    partialFilterExpression: {
             $or: [
                 { post_id: { $exists: true } },
                 { answer_id: { $exists: true } }
