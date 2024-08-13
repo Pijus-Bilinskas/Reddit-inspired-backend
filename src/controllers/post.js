@@ -1,8 +1,6 @@
 import {v4 as uuidv4} from "uuid"
 import PostModel from "../models/post.js"
 import GroupModel from "../models/group.js"
-import LikeModel from "../models/like.js"
-import DislikeModel from "../models/dislike.js"
 import UserModel from "../models/user.js"
 import ReactionModel from "../models/reaction.js"
 

@@ -2,9 +2,7 @@ import {v4 as uuidv4} from "uuid"
 import AnswerModel from "../models/answer.js"
 import PostModel from "../models/post.js";
 import UserModel from "../models/user.js"
-import LikeModel from "../models/like.js"
-import DislikeModel from "../models/dislike.js"
-
+import ReactionModel from "../models/reaction.js"
 
 export const INSERT_ANSWER = async (req, res) => {
     try{
