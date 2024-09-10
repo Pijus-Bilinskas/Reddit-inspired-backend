@@ -8,6 +8,7 @@ export const INSERT_GROUP = async (req, res) => {
         const group = new GroupModel({
             id: uuidv4(),
             name: req.body.name,
+            image: req.body.image,
             created_at: new Date(),
         })
 
