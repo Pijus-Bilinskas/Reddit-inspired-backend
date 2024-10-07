@@ -1,5 +1,6 @@
 import {v4 as uuidv4} from "uuid"
 import GroupModel from "../models/group.js"
+import UserModel from "../models/user.js"
 
 
 export const INSERT_GROUP = async (req, res) => {
@@ -42,3 +43,23 @@ export const DELETE_GROUP_BY_ID = async (req, res) => {
     }
 }
 
+export const JOIN_GROUP = async (req, res) => {
+    try{
+        const group = await GroupModel.findOne( {id: req.params.id} )
+        const user = await UserModel.findOne({ id: req.user.user_id })
+
+        const groupIndex = user.joined_groups.findIndex(joinedGroup => joinedGroup.id === group.id);
+
+        if(groupIndex > -1){
+            user.joined_groups.splice(groupIndex, 1)
+            user.save()
+            return res.status(200).json({message: "Group successfully left"})
+        }
+
+        user.joined_groups.push(group)
+        user.save()
+        return res.status(200).json({message: "Group successfully joined", joinedGroup: group})
+    } catch (err){
+        return res.status(500).json("An error occorred while joining group")
+    }
+}

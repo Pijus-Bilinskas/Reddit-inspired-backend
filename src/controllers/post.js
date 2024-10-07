@@ -6,15 +6,32 @@ import ReactionModel from "../models/reaction.js"
 
 export const INSERT_POST = async (req, res) => {
     try{
+        const { content_type, content_text, content_image, content_link, title} = req.body;
+
+        if(!["text", "image", "link"].includes(content_type)){
+            return res.status(400).json({ error: "Invalid content type" })
+        }
+        if(content_type === "text" && !content_text) {
+            return res.status(400).json({ error: "Text content is required for the text type" })
+        }
+        if(content_type === "image" && !content_image) {
+            return res.status(400).json({ error: "Image content " })
+        }
+        if(content_type === "link" && !content_link) {
+            return res.status(400).json({ error: "Link content is required for the text type" })
+        }
+
         const post = new PostModel({
             id: uuidv4(),
             group_id: req.params.id,
             user_id: req.user.user_id,
-            title: req.body.title,
-            content: req.body.content,
+            title,
+            content_type,
+            content_text: content_type === "text" ? content_text : null,
+            content_image: content_type === "image" ? content_image : null,
+            content_link: content_type === "link" ? content_link : null,
             created_at: new Date(),
         })
-
         const response = await post.save();
         return res.status(200).json({post: response})
     } catch(err){

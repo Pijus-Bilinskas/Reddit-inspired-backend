@@ -59,7 +59,8 @@ export const LOG_IN = async (req, res) => {
 
         return res.status(200).json({
             jwt_token: jwt_token,
-            jwt_refresh_token: jwt_refresh_token
+            jwt_refresh_token: jwt_refresh_token,
+            joined_groups: user.joined_groups
         })
     } catch (err) {
         return res.status(400).json({message: "ERR", err})
